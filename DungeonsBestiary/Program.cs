@@ -1,10 +1,15 @@
 ﻿using DungeonsBestiary.Classes;
 using DungeonsBestiary.Enum;
+using DungeonsBestiary.Models;
+using DungeonsBestiary.Repository;
+using DungeonsBestiary.Service;
+
 namespace DungeonsBestiary
 {
     class Program
 	{
-		static MonsterRepository repository = new MonsterRepository();
+		static MonsterContext monsterContext = new MonsterContext();
+		static MonsterService monsterService = new MonsterService(monsterContext);
 		static void Main(string[] args)
 		{
 			string option = GetUserOption();
@@ -32,49 +37,56 @@ namespace DungeonsBestiary
 
 				option = GetUserOption();
 			}
-
-			Console.WriteLine("Exiting program.");
 		}
 
 		private static void DeleteMonster()
 		{
-			Console.Write("Type the monster ID: ");
-			int monsterIndex = int.Parse(Console.ReadLine());
-
-			repository.Delete(monsterIndex);
-
-			Console.Write("Monster with id " + monsterIndex + " Delete Successfully ");
+			var monsterId = getId();
+			
+			monsterService.DeleteById(monsterId);
+			
 		}
-
 		private static void ShowMonster()
 		{
-			Console.Write("Type the monster ID:  ");
-			int monsterIndex = int.Parse(Console.ReadLine());
+			
+			int monsterIndex = getId();
 
-			var monster = repository.ReturnId(monsterIndex);
+			try
+			{
+				var monster = monsterService.GetById(monsterIndex);
 
-			Console.WriteLine(monster);
+				Console.WriteLine(monster.ToString());
+
+				var lang = monsterService.GetLanguages(monster.MonsterId);
+
+				Console.WriteLine(String.Join(", ", lang));
+			}
+			catch {
+				Console.WriteLine("Monster with ID {0} not found!", monsterIndex);
+			}
+			
 		}
-
 		private static void ListMonsters()
 		{
-			Console.WriteLine("List Monsters: ");
+			Console.WriteLine("List All Monsters: ");
 
-			var list = repository.GetAll();
-
-			if (list.Count == 0)
+			try
 			{
-				Console.WriteLine("None monster found");
-				return;
+				var list = monsterService.GetMonsters();
+				
+				foreach (var monster in list)
+				{
+					Console.WriteLine(monster.ToString());
+					var lang = monsterService.GetLanguages(monster.MonsterId);
+					Console.WriteLine(string.Join(", ", lang));
+					
+				}
 			}
-
-			foreach (var monster in list)
-			{	
-				Console.WriteLine(monster.getId());
-				Console.WriteLine(monster.ToString());
+			catch {
+				Console.WriteLine("The database is empty!!");
 			}
+			
 		}
-
 		private static void InsertMonster()
 		{
 			Console.WriteLine("Insert a new monster: ");
@@ -89,7 +101,6 @@ namespace DungeonsBestiary
 			Alignment entryAlignment = new Alignment();
 
 			entryAlignment = (Alignment) entryAlignmentnumber;
-
 
 			Console.Write("Type the monster's name: ");
 			string entryName = Console.ReadLine();
@@ -118,7 +129,7 @@ namespace DungeonsBestiary
 			Console.Write("Type the monster's Charisma: ");
 			int EntryCharisma = int.Parse(Console.ReadLine());
 
-			List<Language> lang = new List<Language>();
+			Monster newMonster = new Monster(entryName, entryDescription, entryAlignment, EntryLifePoints, EntryStrength, EntryDexterity, EntryConstitution, EntryInteligence, EntryWisdom, EntryCharisma);
 
 			Console.Write("Type the monster's Language Spoken (For more than one type one per entry then when finish just press Enter): ");
 
@@ -126,14 +137,20 @@ namespace DungeonsBestiary
 
 			while (EntryLanguage != "") {
 
-				lang.Add(new Language(EntryLanguage));
+				var l = new Language();
+
+				l.Name = EntryLanguage;
+
+				LanguageMonster languageMonster = new LanguageMonster(l.LanguageId, newMonster.MonsterId, l, newMonster);
+
+				l.LanguageMonsters.Add(languageMonster);
+				newMonster.LanguageMonsters.Add(languageMonster);
 
 				EntryLanguage = Console.ReadLine();
+
 			}
 
-			Monster newMonster = new Monster(repository.NextId(), entryName, entryDescription, entryAlignment, EntryLifePoints, EntryStrength, EntryDexterity, EntryConstitution, EntryInteligence, EntryWisdom, EntryCharisma, lang);
-
-			repository.Insert(newMonster);
+			monsterService.Create(newMonster);
 		}
 
 		private static string GetUserOption()
@@ -145,12 +162,18 @@ namespace DungeonsBestiary
 			Console.WriteLine("2- Insert a new monster");
 			Console.WriteLine("3- Delete a existing monster");
 			Console.WriteLine("4- Show monster");
-			Console.WriteLine("X- Sair");
+			Console.WriteLine("X- Exit");
 			Console.WriteLine();
 
-			string opcaoUsuario = Console.ReadLine().ToUpper();
+			string userOption = Console.ReadLine().ToUpper();
 			Console.WriteLine();
-			return opcaoUsuario;
+			return userOption;
+		}
+		private static int getId() {
+
+			Console.Write("Type the monster ID:  ");
+
+			return int.Parse(Console.ReadLine());
 		}
 	}
 }
