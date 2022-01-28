@@ -18,7 +18,27 @@ namespace DungeonsBestiary.Service
         {
             _context = context;
         }
+        public void UpdateMonster(int monsterId, Monster updatedMonster) {
 
+            var monsterToUpdate = _context.Monsters.Where(monster => monster.MonsterId == monsterId).ToList().First();
+
+            monsterToUpdate.Name = updatedMonster.Name;
+            monsterToUpdate.Description = updatedMonster.Description;
+            monsterToUpdate.Alignment = updatedMonster.Alignment;
+            monsterToUpdate.Strength = updatedMonster.Strength;
+            monsterToUpdate.Constitution= updatedMonster.Constitution;
+            monsterToUpdate.Charisma = updatedMonster.Charisma;
+            monsterToUpdate.LifePoints = updatedMonster.LifePoints;
+            monsterToUpdate.Inteligence = updatedMonster.Inteligence;
+            monsterToUpdate.Wisdom = updatedMonster.Wisdom;
+            monsterToUpdate.Dexterity = updatedMonster.Dexterity;
+
+            foreach (var l in updatedMonster.LanguageMonsters) {
+                monsterToUpdate.LanguageMonsters.Add(l);
+            }   
+
+            _context.SaveChanges();
+        }
         public IEnumerable<Monster> GetMonsters() {
 
            return _context.Monsters.AsNoTracking().ToList();
@@ -29,7 +49,6 @@ namespace DungeonsBestiary.Service
             var languages = from lang in _context.LanguageMonsters
                             where lang.MonsterId == monsterId
                             select lang.Language;
-
 
             return languages;
         }

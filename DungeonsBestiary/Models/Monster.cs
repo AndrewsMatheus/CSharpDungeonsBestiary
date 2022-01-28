@@ -81,7 +81,7 @@ namespace DungeonsBestiary.Classes
             _return += "Languages: ";
 
 
-            _return += String.Join<Language>(",", this.LanguageMonsters.Select(m => m.Language));
+            _return += String.Join<Language>(",", Languages);
 
             return _return;
         }

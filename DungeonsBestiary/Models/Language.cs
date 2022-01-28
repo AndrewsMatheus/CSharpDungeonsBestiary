@@ -34,7 +34,7 @@ namespace DungeonsBestiary.Classes
 
             string _return = "";
 
-            _return += "Name: " + this.Name;
+            _return += this.Name;
 
             return _return;
         }

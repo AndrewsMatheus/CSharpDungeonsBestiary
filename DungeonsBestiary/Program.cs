@@ -30,6 +30,9 @@ namespace DungeonsBestiary
 					case "4":
 						ShowMonster();
 						break;
+					case "5":
+						UpdateMonster();
+						break;
 
 					default:
 						throw new ArgumentOutOfRangeException();
@@ -68,8 +71,6 @@ namespace DungeonsBestiary
 		}
 		private static void ListMonsters()
 		{
-			Console.WriteLine("List All Monsters: ");
-
 			try
 			{
 				var list = monsterService.GetMonsters();
@@ -89,9 +90,42 @@ namespace DungeonsBestiary
 		}
 		private static void InsertMonster()
 		{
-			Console.WriteLine("Insert a new monster: ");
 
-            foreach (int i in Enum.Alignment.GetValues(typeof(Alignment)))
+			monsterService.Create(getNewMonster());
+		}
+		static private void UpdateMonster() {
+
+			var monsterToUpdate = getNewMonster();
+
+			monsterService.UpdateMonster(getId(), monsterToUpdate);
+		}
+		private static string GetUserOption()
+		{
+			Console.WriteLine();
+			Console.WriteLine("Inform a valid option");
+
+			Console.WriteLine("1- List monsters");
+			Console.WriteLine("2- Insert a new monster");
+			Console.WriteLine("3- Delete a existing monster");
+			Console.WriteLine("4- Show monster");
+			Console.WriteLine("5- Update monster");
+			Console.WriteLine("X- Exit");
+			Console.WriteLine();
+
+			string userOption = Console.ReadLine().ToUpper();
+			Console.WriteLine();
+			return userOption;
+		}
+		private static int getId() {
+
+			Console.Write("Type the monster ID:  ");
+
+			return int.Parse(Console.ReadLine());
+		}
+
+		private static Monster getNewMonster() {
+
+			foreach (int i in Enum.Alignment.GetValues(typeof(Alignment)))
 			{
 				Console.WriteLine(i + " - " + Enum.Alignment.GetName(typeof(Alignment), i));
 			}
@@ -100,13 +134,13 @@ namespace DungeonsBestiary
 
 			Alignment entryAlignment = new Alignment();
 
-			entryAlignment = (Alignment) entryAlignmentnumber;
+			entryAlignment = (Alignment)entryAlignmentnumber;
 
 			Console.Write("Type the monster's name: ");
 			string entryName = Console.ReadLine();
 
 			Console.Write("Type the monster's description: ");
-			string entryDescription  = Console.ReadLine();
+			string entryDescription = Console.ReadLine();
 
 			Console.Write("Type the monster's LifePoints: ");
 			int EntryLifePoints = int.Parse(Console.ReadLine());
@@ -116,7 +150,7 @@ namespace DungeonsBestiary
 
 			Console.Write("Type the monster's Dexterity: ");
 			int EntryDexterity = int.Parse(Console.ReadLine());
-			
+
 			Console.Write("Type the monster's Constitution: ");
 			int EntryConstitution = int.Parse(Console.ReadLine());
 
@@ -135,7 +169,8 @@ namespace DungeonsBestiary
 
 			string EntryLanguage = Console.ReadLine();
 
-			while (EntryLanguage != "") {
+			while (EntryLanguage != "")
+			{
 
 				var l = new Language();
 
@@ -150,30 +185,8 @@ namespace DungeonsBestiary
 
 			}
 
-			monsterService.Create(newMonster);
+			return newMonster;
 		}
 
-		private static string GetUserOption()
-		{
-			Console.WriteLine();
-			Console.WriteLine("Inform a valid option");
-
-			Console.WriteLine("1- List monsters");
-			Console.WriteLine("2- Insert a new monster");
-			Console.WriteLine("3- Delete a existing monster");
-			Console.WriteLine("4- Show monster");
-			Console.WriteLine("X- Exit");
-			Console.WriteLine();
-
-			string userOption = Console.ReadLine().ToUpper();
-			Console.WriteLine();
-			return userOption;
-		}
-		private static int getId() {
-
-			Console.Write("Type the monster ID:  ");
-
-			return int.Parse(Console.ReadLine());
-		}
 	}
 }
